@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vice · Canje de cupón</title>
+<meta name="theme-color" content="#121210">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="../avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Boldonse&family=Inter:wght@400;500;600;700&display=swap">
+<script>
+  window.CANJE_CFG = {
+    servidor: 'https://script.google.com/macros/s/AKfycby7teQg4MR0Lwze4CrICpsh6sWb2b6Hky9Z5K-FqVvsVLNtiBulX4IV2b3tTcq9AxHn/exec'
+  };
+</script>
+<style>
+  :root{
+    --bg:#121210; --ink:#f3eee6; --soft:#bdb7ac; --muted:#7f7a71;
+    --pink:#e94780; --pink-hi:#ff6fa3; --cyan:#2bb8d1; --cyan-hi:#6fe3f5;
+    --ok:#3ee08f; --mal:#ff6b6b; --aviso:#ffd28a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  [hidden]{display:none!important}
+  body{background:var(--bg); color:var(--ink); min-height:100svh;
+    font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing:antialiased;
+    padding:max(20px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom))}
+  main{max-width:420px; margin:0 auto; display:flex; flex-direction:column; gap:16px}
+  header{display:flex; align-items:center; justify-content:space-between; gap:12px}
+  header img{height:38px; filter:drop-shadow(0 0 8px rgba(233,71,128,.7))}
+  .tag{font-size:11px; font-weight:700; letter-spacing:.3em; text-transform:uppercase; color:var(--cyan-hi)}
+  .salir{background:none; border:0; color:var(--muted); font:500 12px Inter, sans-serif; text-decoration:underline; cursor:pointer}
+
+  .caja{border-radius:20px; padding:20px; background:rgba(255,255,255,.04); border:1.5px solid rgba(255,255,255,.12)}
+  h1{font-family:Boldonse, Impact, sans-serif; font-weight:400; font-size:18px; line-height:1.45; margin-bottom:12px}
+  label{display:block; font-size:13px; color:var(--soft); margin-bottom:8px}
+  input{width:100%; min-height:54px; border-radius:14px; padding:0 16px; font:600 20px Inter, sans-serif; letter-spacing:.08em;
+    color:var(--ink); background:rgba(0,0,0,.35); border:1.5px solid rgba(255,255,255,.18); outline:none}
+  input:focus{border-color:var(--cyan); box-shadow:0 0 12px rgba(43,184,209,.45)}
+  .fila{display:flex; flex-direction:column; gap:10px}
+  .btn{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; min-height:56px; border:0; border-radius:14px;
+    cursor:pointer; font-family:Boldonse, Impact, sans-serif; font-size:14px; line-height:1.45; letter-spacing:.06em;
+    color:var(--bg); background:var(--cyan-hi)}
+  .btn.rosa{background:var(--pink-hi)}
+  .btn.verde{background:var(--ok); font-size:16px; min-height:64px}
+  .btn:disabled{filter:grayscale(1) brightness(.6); cursor:default}
+  .err{color:var(--mal); font-size:14px; margin-top:10px}
+
+  .estado{border-radius:22px; padding:26px 20px; text-align:center; border:2px solid}
+  .estado .grande{font-family:Boldonse, Impact, sans-serif; font-size:30px; line-height:1.45}
+  .estado .cod{font-family:"Courier New", monospace; font-size:22px; font-weight:700; letter-spacing:.12em; margin-top:6px}
+  .estado .det{margin-top:12px; font-size:14px; line-height:1.6; color:var(--soft)}
+  .estado .det b{color:var(--ink)}
+  .e-valido{border-color:var(--cyan); background:rgba(43,184,209,.08)}   .e-valido .grande{color:var(--cyan-hi)}
+  .e-canjeado{border-color:var(--ok); background:rgba(62,224,143,.1)}   .e-canjeado .grande{color:var(--ok)}
+  .e-usado, .e-noexiste{border-color:var(--mal); background:rgba(255,107,107,.1)} .e-usado .grande, .e-noexiste .grande{color:var(--mal)}
+  .e-vencido{border-color:var(--aviso); background:rgba(255,210,138,.08)} .e-vencido .grande{color:var(--aviso)}
+  .otro{background:none; border:0; color:var(--soft); font:500 14px Inter, sans-serif; text-decoration:underline; cursor:pointer; padding:8px}
+  .spin{width:18px; height:18px; border-radius:50%; border:2.5px solid rgba(18,18,16,.3); border-top-color:var(--bg); animation:g .7s linear infinite}
+  @keyframes g{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="../logo.png" alt="Vice">
+    <span class="tag">Canje en caja</span>
+  </header>
+
+  <!-- 1. Clave del local (queda guardada en este celular) -->
+  <section class="caja" id="vClave" hidden>
+    <h1>Clave del local</h1>
+    <form class="fila" id="fClave">
+      <label for="clave">La pide una sola vez en este celular.</label>
+      <input id="clave" type="password" inputmode="numeric" autocomplete="off" required>
+      <button class="btn rosa" type="submit">Entrar</button>
+    </form>
+    <p class="err" id="errClave" hidden></p>
+  </section>
+
+  <!-- 2. Código a mano, si no vino por QR -->
+  <section class="caja" id="vCodigo" hidden>
+    <h1>Código del cupón</h1>
+    <form class="fila" id="fCodigo">
+      <label for="codigo">Escaneá el QR del cliente con la cámara, o escribí el código.</label>
+      <input id="codigo" type="text" autocapitalize="characters" autocomplete="off" placeholder="VICE-XXXXX" required>
+      <button class="btn" type="submit">Buscar</button>
+    </form>
+  </section>
+
+  <!-- 3. Resultado -->
+  <section id="vEstado" hidden>
+    <div class="estado" id="estado"></div>
+    <div class="fila" style="margin-top:14px">
+      <button class="btn verde" id="canjear" hidden>Canjear 10%</button>
+      <button class="otro" id="otroCodigo" type="button">Buscar otro código</button>
+    </div>
+  </section>
+
+  <p style="text-align:center"><button class="salir" id="salir" type="button" hidden>Cerrar sesión de caja en este celular</button></p>
+</main>
+
+<script>
+(function(){
+  var CFG = window.CANJE_CFG || {};
+  var $ = function(id){ return document.getElementById(id); };
+  var LS = 'vice:caja';
+  var clave = leerClave();
+  var codigo = (new URLSearchParams(location.search).get('c') || '').trim().toUpperCase();
+
+  function leerClave(){ try { return localStorage.getItem(LS) || ''; } catch(e){ return ''; } }
+  function guardarClave(v){ try { v ? localStorage.setItem(LS, v) : localStorage.removeItem(LS); } catch(e){} }
+  function ver(id){ ['vClave','vCodigo','vEstado'].forEach(function(v){ $(v).hidden = v !== id; }); $('salir').hidden = !clave; }
+
+  function pedir(datos){
+    datos.clave = clave;
+    return fetch(CFG.servidor, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(datos) })
+      .then(function(r){ return r.json(); });
+  }
+
+  function arrancar(){
+    if (!clave) { ver('vClave'); $('clave').focus(); return; }
+    if (!codigo) { ver('vCodigo'); return; }
+    consultar('consultar');
+  }
+
+  function consultar(accion){
+    ver('vEstado');
+    $('canjear').hidden = true;
+    $('estado').className = 'estado';
+    $('estado').innerHTML = accion === 'canjear' ? '<div class="det">Canjeando…</div>' : '<div class="det">Buscando ' + esc(codigo) + '…</div>';
+    pedir({ accion: accion, codigo: codigo }).then(function(r){
+      if (!r.ok && r.motivo === 'clave') { clave = ''; guardarClave(''); ver('vClave'); mostrarErr('La clave no es correcta.'); return; }
+      if (!r.ok && r.motivo === 'bloqueado') { pintar('usado', 'Bloqueado', '', 'Demasiados intentos con clave incorrecta. Esperá una hora.'); return; }
+      if (!r.ok) { pintar('vencido', 'Error', codigo, 'No se pudo consultar. Probá de nuevo.'); return; }
+      codigo = r.codigo || codigo;
+      var quien = r.email ? 'Cliente: <b>' + esc(r.email) + '</b><br>' : '';
+      if (r.estado === 'valido') {
+        pintar('valido', 'Válido', codigo, quien + 'Vence el <b>' + esc(r.vence) + '</b>');
+        $('canjear').hidden = false;
+      } else if (r.estado === 'canjeado') {
+        pintar('canjeado', '✓ Canjeado', codigo, quien + 'Aplicá el <b>10% de descuento</b>.<br>Quedó marcado como usado el ' + esc(r.usado) + '.');
+      } else if (r.estado === 'usado') {
+        pintar('usado', 'Ya usado', codigo, quien + 'Se canjeó el <b>' + esc(r.usado || 'antes') + '</b>.<br>No aplicar el descuento.');
+      } else if (r.estado === 'vencido') {
+        pintar('vencido', 'Vencido', codigo, quien + 'Venció el <b>' + esc(r.vence) + '</b>.');
+      } else {
+        pintar('noexiste', 'No existe', codigo, 'Ese código no es un cupón de Vice. Revisá que esté bien escrito.');
+      }
+    }).catch(function(){ pintar('vencido', 'Sin conexión', codigo, 'No se pudo consultar. Revisá internet y probá de nuevo.'); });
+  }
+
+  function pintar(tipo, titulo, cod, det){
+    $('estado').className = 'estado e-' + tipo;
+    $('estado').innerHTML = '<div class="grande">' + esc(titulo) + '</div>' +
+      (cod ? '<div class="cod">' + esc(cod) + '</div>' : '') + '<div class="det">' + det + '</div>';
+  }
+  function mostrarErr(t){ $('errClave').textContent = t; $('errClave').hidden = false; }
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+  $('fClave').addEventListener('submit', function(e){
+    e.preventDefault();
+    clave = $('clave').value.trim(); guardarClave(clave); $('clave').value = ''; $('errClave').hidden = true;
+    arrancar();
+  });
+  $('fCodigo').addEventListener('submit', function(e){
+    e.preventDefault();
+    codigo = $('codigo').value.trim().toUpperCase(); $('codigo').value = '';
+    history.replaceState(null, '', '?c=' + encodeURIComponent(codigo));
+    consultar('consultar');
+  });
+  $('canjear').addEventListener('click', function(){
+    $('canjear').disabled = true;
+    $('canjear').innerHTML = '<span class="spin"></span>Canjeando';
+    consultar('canjear');
+    setTimeout(function(){ $('canjear').disabled = false; $('canjear').textContent = 'Canjear 10%'; }, 500);
+  });
+  $('otroCodigo').addEventListener('click', function(){
+    codigo = ''; history.replaceState(null, '', location.pathname); ver('vCodigo'); $('codigo').focus();
+  });
+  $('salir').addEventListener('click', function(){ clave = ''; guardarClave(''); ver('vClave'); });
+
+  arrancar();
+})();
+</script>
+</body>
+</html>
