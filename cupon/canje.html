@@ -98,7 +98,7 @@
 <div class="velo" id="velo" hidden>
   <div class="hoja">
     <h2>¿Marcar como usado?</h2>
-    <p>Aplicá el 10% y confirmá. <b>No se puede deshacer.</b> Después de esto, el cupón no vuelve a servir.</p>
+    <p>Aplicá el 20% y confirmá. <b>No se puede deshacer.</b> Después de esto, el cupón no vuelve a servir.</p>
     <button class="si" id="confirmar" type="button">Sí, marcar usado</button>
     <button class="no" id="cancelar" type="button">Cancelar</button>
   </div>
@@ -143,12 +143,12 @@
       var quien = (r.ig ? 'Instagram: <b>' + esc(r.ig) + '</b><br>' : '') + (r.email ? 'Mail: <b>' + esc(r.email) + '</b>' : '');
       if (r.estado === 'valido') {
         pintar('valido', ICONOS.ok, 'Cupón válido', codigo,
-          '<b>10% de descuento</b>, solo consumo en el local.<br>' + quien + '<br>Vence el <b>' + esc(r.vence) + '</b>',
+          '<b>20% de descuento</b>, solo consumo en el local.<br>' + quien + '<br>Vence el <b>' + esc(r.vence) + '</b>',
           '<button class="marcar" id="marcar" type="button">Marcar como usado</button>');
         $('marcar').addEventListener('click', function(){ $('velo').hidden = false; });
       } else if (r.estado === 'canjeado') {
         pintar('usado', ICONOS.no, 'Cupón usado', codigo,
-          'Recién marcado: aplicá el <b>10%</b>.<br>Ya no sirve para otra compra.<br>' + quien);
+          'Recién marcado: aplicá el <b>20%</b>.<br>Ya no sirve para otra compra.<br>' + quien);
       } else if (r.estado === 'usado') {
         pintar('usado', ICONOS.no, 'Cupón usado', codigo,
           'Se usó el <b>' + esc(r.usado || 'antes') + '</b>.<br><b>No aplicar el descuento.</b><br>' + quien);
