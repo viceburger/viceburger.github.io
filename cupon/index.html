@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Vice Burgers &amp; Fries · 10% OFF</title>
-<meta name="description" content="Dejá tu reseña de Vice en Google y llevate 10% OFF en tu próxima compra.">
+<meta name="description" content="Sumate al canal de Vice en Instagram y llevate 10% OFF en tu próxima compra.">
 <meta name="theme-color" content="#121210">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" href="../avatar.png">
@@ -16,7 +16,8 @@
   // Completar antes de imprimir el QR.
   window.CUPON_CFG = {
     servidor: 'https://script.google.com/macros/s/AKfycby7teQg4MR0Lwze4CrICpsh6sWb2b6Hky9Z5K-FqVvsVLNtiBulX4IV2b3tTcq9AxHn/exec',  // Apps Script "Cupones Vice"
-    resena: 'https://g.page/r/CUMh-u6V9haMEAI/review',  // PROVISORIO: es el de Ideamia. Cambiar por el de Vice cuando verifiquen el perfil.
+    canal: '',  // link de invitación al canal de Instagram de Vice (Viciosos). FALTA.
+    vence: 'domingo 29/11',  // tiene que coincidir con VENCE en Code.gs
     googleClientId: '538996190430-j9mcpj6k7jp26391nkhojkmc9ksm4g66.apps.googleusercontent.com'  // ID de cliente OAuth (Google Cloud, cuenta de Vice). Vacío = solo mail escrito.
   };
 </script>
@@ -88,6 +89,14 @@
   .btn.cyan{background:var(--cyan-hi); box-shadow:0 0 16px rgba(43,184,209,.7)}
   .btn svg{width:18px; height:18px; flex:none}
 
+  .ig{display:block; font-size:13px; font-weight:600; color:var(--soft)}
+  .arroba{display:flex; align-items:center; margin-top:8px; min-height:52px; border-radius:14px; padding:0 14px;
+    background:rgba(0,0,0,.35); border:1.5px solid rgba(255,255,255,.18)}
+  .arroba:focus-within{border-color:var(--cyan); box-shadow:0 0 12px rgba(43,184,209,.45)}
+  .arroba b{color:var(--pink-hi); font-size:18px; margin-right:4px}
+  .arroba input{flex:1; min-width:0; background:none; border:0; outline:none; color:var(--ink); font:500 16px Inter, system-ui, sans-serif}
+  .arroba input::placeholder{color:var(--muted)}
+  #gzona.espera{opacity:.35; pointer-events:none}
   .gbtn{display:flex; justify-content:center; min-height:44px}
   .bloq .gbtn, .bloq .otro{pointer-events:none}
   .otro{display:block; margin:12px auto 0; background:none; border:0; cursor:pointer;
@@ -130,19 +139,23 @@
     <div class="intro">
       <div class="off">10%<small>OFF</small></div>
       <h1>en tu próxima visita</h1>
-      <p>Contanos en Google qué te pareció Vice y te mandamos un cupón a tu mail.</p>
+      <p>Sumate al canal de Vice en Instagram y te mandamos un cupón a tu mail.</p>
     </div>
 
     <section class="paso" id="p1">
-      <div class="paso-t"><span class="num">1</span>Dejá tu reseña</div>
-      <a class="btn" id="irResena" href="#" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>
-        Reseñar en Google
+      <div class="paso-t"><span class="num">1</span>Sumate al canal</div>
+      <a class="btn" id="irCanal" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        Entrar al canal
       </a>
     </section>
 
     <section class="paso bloq" id="p2">
       <div class="paso-t"><span class="num">2</span>Recibí tu cupón</div>
+      <label class="ig" for="ig">Tu usuario de Instagram
+        <span class="arroba"><b>@</b><input id="ig" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="tuusuario" disabled></span>
+      </label>
+      <p class="nota" style="margin:6px 0 14px">Con este usuario chequeamos que estés en el canal.</p>
       <div id="gzona" hidden>
         <div class="gbtn" id="gbtn"></div>
         <button class="otro" id="otro" type="button">Prefiero escribir mi mail</button>
@@ -157,7 +170,7 @@
       <div class="msg" id="msg" role="status" hidden></div>
     </section>
 
-    <p class="legal">Un cupón por persona y por mail. Válido por 30 días en el local, mostrando el QR del mail al pagar. Se usa una sola vez. No acumulable con otras promos. <a href="privacidad.html" style="color:inherit">Privacidad</a></p>
+    <p class="legal">Un cupón por persona. Válido hasta el <span id="vence">domingo 29/11</span> en el local, mostrando el QR del mail al pagar. Se usa una sola vez. No acumulable con otros descuentos del local. <a href="privacidad.html" style="color:inherit">Privacidad</a></p>
   </div></div>
 </main>
 
@@ -172,23 +185,41 @@
   function leer(){ try { return JSON.parse(localStorage.getItem(LS)) || {}; } catch(e){ return {}; } }
   function guardar(o){ try { localStorage.setItem(LS, JSON.stringify(o)); } catch(e){} }
 
-  $('irResena').href = CFG.resena || 'https://www.google.com/maps/search/Vice+Burgers+%26+Fries';
+  $('irCanal').href = CFG.canal || 'https://www.instagram.com/';
+  if (CFG.vence) $('vence').textContent = CFG.vence;
+  var ig = $('ig');
 
   function habilitar(){
     p1.classList.add('hecho');
     p2.classList.remove('bloq');
-    email.disabled = false; enviar.disabled = false;
+    ig.disabled = false; email.disabled = false; enviar.disabled = false;
   }
 
   var estado = leer();
-  if (estado.resena) habilitar();
+  if (estado.canal) habilitar();
+  if (estado.ig) ig.value = estado.ig;
   if (estado.enviado) mostrar('ok', 'Ya te mandamos el cupón a <b>' + esc(estado.enviado) + '</b>. Si no lo ves, fijate en Promociones o Spam.');
 
-  $('irResena').addEventListener('click', function(){
-    var s = leer(); s.resena = Date.now(); guardar(s);
-    // Se habilita al volver a esta pestaña, así primero reseñan.
+  $('irCanal').addEventListener('click', function(){
+    var s = leer(); s.canal = Date.now(); guardar(s);
+    // Se habilita al volver a esta pestaña, así primero entran al canal.
     setTimeout(habilitar, 1500);
   });
+
+  // Usuario de Instagram: letras, números, punto y guion bajo, hasta 30.
+  function usuarioIg(){
+    var v = ig.value.trim().replace(/^@+/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//i, '').replace(/[/?#].*$/, '').toLowerCase();
+    return /^[a-z0-9._]{1,30}$/.test(v) ? v : '';
+  }
+  function revisarIg(){
+    $('gzona').classList.toggle('espera', !usuarioIg());
+  }
+  ig.addEventListener('input', revisarIg);
+  revisarIg();
+  function faltaIg(){
+    mostrar('error', 'Poné tu usuario de Instagram, así chequeamos que estés en el canal.');
+    ig.focus();
+  }
 
   // Con ID de cliente: botón "Continuar con Google" y el mail escrito queda como alternativa.
   var form = $('form');
@@ -258,6 +289,10 @@
   });
 
   function pedirCupon(datos, valor){
+    var usuario = usuarioIg();
+    if (!usuario) return faltaIg();
+    datos.ig = usuario;
+    var s0 = leer(); s0.ig = usuario; guardar(s0);
     cargando(true);
     pedir(datos)
       .then(function(r){
@@ -270,6 +305,12 @@
           mostrar('error', 'No pudimos confirmar tu cuenta de Google. Probá de nuevo o escribí tu mail.');
         } else if (r.motivo === 'ya') {
           mostrar('aviso', 'Este mail ya recibió su cupón. Es uno por persona.');
+        } else if (r.motivo === 'ya-ig') {
+          mostrar('aviso', 'Ese usuario de Instagram ya pidió su cupón. Es uno por persona.');
+        } else if (r.motivo === 'ig') {
+          faltaIg();
+        } else if (r.motivo === 'vencido') {
+          mostrar('aviso', 'La promo ya terminó. ¡Seguí atento al canal para la próxima!');
         } else if (r.motivo === 'descartable') {
           mostrar('error', 'Los mails temporales no valen para el cupón. Usá tu mail de siempre.');
         } else if (r.motivo === 'dominio') {
