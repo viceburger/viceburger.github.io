@@ -16,51 +16,62 @@
   };
 </script>
 <style>
+  /* Pantalla de caja: el color de fondo entero dice el estado (verde válido, rojo usado). */
   :root{
     --bg:#121210; --ink:#f3eee6; --soft:#bdb7ac; --muted:#7f7a71;
-    --pink:#e94780; --pink-hi:#ff6fa3; --cyan:#2bb8d1; --cyan-hi:#6fe3f5;
-    --ok:#3ee08f; --mal:#ff6b6b; --aviso:#ffd28a;
+    --cyan:#2bb8d1; --cyan-hi:#6fe3f5; --pink-hi:#ff6fa3;
+    --verde:#17b35f; --rojo:#e0312f; --ambar:#e8a21a;
   }
   *{box-sizing:border-box; margin:0; padding:0}
   [hidden]{display:none!important}
-  body{background:var(--bg); color:var(--ink); min-height:100svh;
+  html,body{min-height:100%}
+  body{background:var(--bg); color:var(--ink); min-height:100svh; transition:background .25s;
     font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif; -webkit-font-smoothing:antialiased;
-    padding:max(20px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom))}
-  main{max-width:420px; margin:0 auto; display:flex; flex-direction:column; gap:16px}
-  header{display:flex; align-items:center; justify-content:space-between; gap:12px}
-  header img{height:38px; filter:drop-shadow(0 0 8px rgba(233,71,128,.7))}
-  .tag{font-size:11px; font-weight:700; letter-spacing:.3em; text-transform:uppercase; color:var(--cyan-hi)}
-  .salir{background:none; border:0; color:var(--muted); font:500 12px Inter, sans-serif; text-decoration:underline; cursor:pointer}
+    padding:max(18px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom))}
+  body.e-valido{background:var(--verde)}
+  body.e-usado, body.e-noexiste{background:var(--rojo)}
+  body.e-vencido{background:var(--ambar)}
+  main{max-width:440px; margin:0 auto; min-height:calc(100svh - 42px); display:flex; flex-direction:column; gap:16px}
+  header{display:flex; align-items:center; justify-content:space-between}
+  header img{height:34px}
+  .tag{font-size:11px; font-weight:700; letter-spacing:.3em; text-transform:uppercase; opacity:.85}
 
-  .caja{border-radius:20px; padding:20px; background:rgba(255,255,255,.04); border:1.5px solid rgba(255,255,255,.12)}
+  .caja{border-radius:20px; padding:20px; background:rgba(255,255,255,.05); border:1.5px solid rgba(255,255,255,.12)}
   h1{font-family:Boldonse, Impact, sans-serif; font-weight:400; font-size:18px; line-height:1.45; margin-bottom:12px}
   label{display:block; font-size:13px; color:var(--soft); margin-bottom:8px}
   input{width:100%; min-height:54px; border-radius:14px; padding:0 16px; font:600 20px Inter, sans-serif; letter-spacing:.08em;
     color:var(--ink); background:rgba(0,0,0,.35); border:1.5px solid rgba(255,255,255,.18); outline:none}
   input:focus{border-color:var(--cyan); box-shadow:0 0 12px rgba(43,184,209,.45)}
   .fila{display:flex; flex-direction:column; gap:10px}
-  .btn{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; min-height:56px; border:0; border-radius:14px;
-    cursor:pointer; font-family:Boldonse, Impact, sans-serif; font-size:14px; line-height:1.45; letter-spacing:.06em;
+  .btn{display:flex; align-items:center; justify-content:center; gap:10px; width:100%; min-height:56px; border:0; border-radius:16px;
+    cursor:pointer; font-family:Boldonse, Impact, sans-serif; font-size:15px; line-height:1.45; letter-spacing:.04em;
     color:var(--bg); background:var(--cyan-hi)}
-  .btn.rosa{background:var(--pink-hi)}
-  .btn.verde{background:var(--ok); font-size:16px; min-height:64px}
-  .btn:disabled{filter:grayscale(1) brightness(.6); cursor:default}
-  .err{color:var(--mal); font-size:14px; margin-top:10px}
+  .btn:disabled{opacity:.6; cursor:default}
 
-  .estado{border-radius:22px; padding:26px 20px; text-align:center; border:2px solid}
-  .estado .grande{font-family:Boldonse, Impact, sans-serif; font-size:30px; line-height:1.45}
-  .estado .cod{font-family:"Courier New", monospace; font-size:22px; font-weight:700; letter-spacing:.12em; margin-top:6px}
-  .estado .det{margin-top:12px; font-size:14px; line-height:1.6; color:var(--soft)}
-  .estado .det b{color:var(--ink)}
-  .e-valido{border-color:var(--cyan); background:rgba(43,184,209,.08)}   .e-valido .grande{color:var(--cyan-hi)}
-  .e-canjeado{border-color:var(--ok); background:rgba(62,224,143,.1)}   .e-canjeado .grande{color:var(--ok)}
-  .e-usado, .e-noexiste{border-color:var(--mal); background:rgba(255,107,107,.1)} .e-usado .grande, .e-noexiste .grande{color:var(--mal)}
-  .e-vencido{border-color:var(--aviso); background:rgba(255,210,138,.08)} .e-vencido .grande{color:var(--aviso)}
-  .deshacer{width:100%; min-height:48px; border-radius:14px; cursor:pointer; background:none; border:1.5px solid rgba(255,255,255,.25);
-    color:var(--ink); font:600 14px Inter, sans-serif}
-  .otro{background:none; border:0; color:var(--soft); font:500 14px Inter, sans-serif; text-decoration:underline; cursor:pointer; padding:8px}
-  .spin{width:18px; height:18px; border-radius:50%; border:2.5px solid rgba(18,18,16,.3); border-top-color:var(--bg); animation:g .7s linear infinite}
+  /* estado a pantalla completa */
+  .estado{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px; padding:10px 0}
+  .icono{width:120px; height:120px; border-radius:50%; display:grid; place-items:center; background:rgba(255,255,255,.18)}
+  .icono svg{width:70px; height:70px; stroke:#fff; stroke-width:3.2; fill:none; stroke-linecap:round; stroke-linejoin:round}
+  .grande{font-family:Boldonse, Impact, sans-serif; font-size:clamp(34px, 11vw, 48px); line-height:1.25; color:#fff; text-transform:uppercase}
+  .cod{font-family:"Courier New", monospace; font-size:24px; font-weight:700; letter-spacing:.14em; color:#fff;
+    background:rgba(0,0,0,.18); border-radius:12px; padding:6px 14px}
+  .det{font-size:16px; line-height:1.6; color:rgba(255,255,255,.92)}
+  .det b{color:#fff}
+  .marcar{width:100%; min-height:72px; border:0; border-radius:18px; cursor:pointer; background:#fff; color:var(--verde);
+    font-family:Boldonse, Impact, sans-serif; font-size:19px; line-height:1.45; box-shadow:0 8px 0 rgba(0,0,0,.18)}
+  .marcar:active{transform:translateY(3px); box-shadow:0 5px 0 rgba(0,0,0,.18)}
+  .otro{background:none; border:0; color:#fff; opacity:.9; font:600 15px Inter, sans-serif; text-decoration:underline; cursor:pointer; padding:10px}
+  .cargando{color:var(--soft); font-size:16px}
+  .spin{width:20px; height:20px; border-radius:50%; border:3px solid rgba(29,29,26,.25); border-top-color:var(--verde); animation:g .7s linear infinite}
   @keyframes g{to{transform:rotate(360deg)}}
+
+  /* confirmación antes de marcar usado */
+  .velo{position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:flex-end; justify-content:center; padding:16px; z-index:9}
+  .hoja{width:100%; max-width:440px; background:var(--bg); color:var(--ink); border-radius:22px; padding:22px 18px; display:flex; flex-direction:column; gap:12px}
+  .hoja h2{font-family:Boldonse, Impact, sans-serif; font-weight:400; font-size:18px; line-height:1.45}
+  .hoja p{font-size:15px; line-height:1.55; color:var(--soft)}
+  .si{min-height:60px; border:0; border-radius:16px; cursor:pointer; background:var(--rojo); color:#fff; font-family:Boldonse, Impact, sans-serif; font-size:15px; line-height:1.45}
+  .no{min-height:52px; border-radius:16px; cursor:pointer; background:none; border:1.5px solid rgba(255,255,255,.3); color:var(--ink); font:600 15px Inter, sans-serif}
 </style>
 </head>
 <body>
@@ -70,128 +81,105 @@
     <span class="tag">Canje en caja</span>
   </header>
 
-  <!-- 1. Clave del local (queda guardada en este celular) -->
-  <section class="caja" id="vClave" hidden>
-    <h1>Clave del local</h1>
-    <form class="fila" id="fClave">
-      <label for="clave">La pide una sola vez en este celular.</label>
-      <input id="clave" type="password" inputmode="numeric" autocomplete="off" required>
-      <button class="btn rosa" type="submit">Entrar</button>
-    </form>
-    <p class="err" id="errClave" hidden></p>
-  </section>
-
-  <!-- 2. Código a mano, si no vino por QR -->
+  <!-- Código a mano, si no vino por QR -->
   <section class="caja" id="vCodigo" hidden>
     <h1>Código del cupón</h1>
     <form class="fila" id="fCodigo">
-      <label for="codigo">Escaneá el QR del cliente con la cámara, o escribí el código.</label>
+      <label for="codigo">Escaneá el QR del mail con la cámara, o escribí el código.</label>
       <input id="codigo" type="text" autocapitalize="characters" autocomplete="off" placeholder="VICE-XXXXX" required>
       <button class="btn" type="submit">Buscar</button>
     </form>
   </section>
 
-  <!-- 3. Resultado -->
-  <section id="vEstado" hidden>
-    <div class="estado" id="estado"></div>
-    <div class="fila" style="margin-top:14px">
-      <button class="btn verde" id="canjear" hidden>Canjear 10%</button>
-      <button class="deshacer" id="deshacer" type="button" hidden>Me equivoqué: deshacer el canje</button>
-      <button class="otro" id="otroCodigo" type="button">Buscar otro código</button>
-    </div>
-  </section>
-
-  <p style="text-align:center"><button class="salir" id="salir" type="button" hidden>Cerrar sesión de caja en este celular</button></p>
+  <section class="estado" id="vEstado" hidden></section>
+  <p style="text-align:center"><button class="otro" id="otroCodigo" type="button" hidden>Buscar otro código</button></p>
 </main>
+
+<div class="velo" id="velo" hidden>
+  <div class="hoja">
+    <h2>¿Marcar como usado?</h2>
+    <p>Aplicá el 10% y confirmá. <b>No se puede deshacer.</b> Después de esto, el cupón no vuelve a servir.</p>
+    <button class="si" id="confirmar" type="button">Sí, marcar usado</button>
+    <button class="no" id="cancelar" type="button">Cancelar</button>
+  </div>
+</div>
 
 <script>
 (function(){
   var CFG = window.CANJE_CFG || {};
   var $ = function(id){ return document.getElementById(id); };
-  var LS = 'vice:caja';
-  var clave = leerClave();
   var codigo = (new URLSearchParams(location.search).get('c') || '').trim().toUpperCase();
 
-  function leerClave(){ try { return localStorage.getItem(LS) || ''; } catch(e){ return ''; } }
-  function guardarClave(v){ try { v ? localStorage.setItem(LS, v) : localStorage.removeItem(LS); } catch(e){} }
-  function ver(id){ ['vClave','vCodigo','vEstado'].forEach(function(v){ $(v).hidden = v !== id; }); $('salir').hidden = !clave; }
+  var ICONOS = {
+    ok: '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    no: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    reloj: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>'
+  };
 
   function pedir(datos){
-    datos.clave = clave;
     return fetch(CFG.servidor, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(datos) })
       .then(function(r){ return r.json(); });
   }
 
+  function ver(id){
+    $('vCodigo').hidden = id !== 'vCodigo';
+    $('vEstado').hidden = id !== 'vEstado';
+    $('otroCodigo').hidden = id !== 'vEstado';
+  }
+
   function arrancar(){
-    if (!clave) { ver('vClave'); $('clave').focus(); return; }
-    if (!codigo) { ver('vCodigo'); return; }
+    if (!codigo) { document.body.className = ''; ver('vCodigo'); return; }
     consultar('consultar');
   }
 
   function consultar(accion){
     ver('vEstado');
-    $('canjear').hidden = true;
-    $('deshacer').hidden = true;
-    $('estado').className = 'estado';
-    $('estado').innerHTML = accion === 'canjear' ? '<div class="det">Canjeando…</div>' :
-      accion === 'deshacer' ? '<div class="det">Deshaciendo…</div>' : '<div class="det">Buscando ' + esc(codigo) + '…</div>';
+    document.body.className = '';
+    $('vEstado').innerHTML = '<p class="cargando">' + (accion === 'canjear' ? 'Marcando como usado…' : 'Buscando ' + esc(codigo) + '…') + '</p>';
     pedir({ accion: accion, codigo: codigo }).then(function(r){
-      if (!r.ok && r.motivo === 'clave') { clave = ''; guardarClave(''); ver('vClave'); mostrarErr('La clave no es correcta.'); return; }
-      if (!r.ok && r.motivo === 'bloqueado') { pintar('usado', 'Bloqueado', '', 'Demasiados intentos con clave incorrecta. Esperá una hora.'); return; }
-      if (!r.ok) { pintar('vencido', 'Error', codigo, 'No se pudo consultar. Probá de nuevo.'); return; }
+      if (!r.ok && r.motivo === 'bloqueado') return pintar('usado', ICONOS.no, 'Bloqueado', '', 'Se probaron demasiados códigos que no existen. Esperá una hora.');
+      if (!r.ok) return pintar('vencido', ICONOS.reloj, 'Error', codigo, 'No se pudo consultar. Probá de nuevo.');
       codigo = r.codigo || codigo;
-      var quien = (r.ig ? 'Instagram: <b>' + esc(r.ig) + '</b><br>' : '') + (r.email ? 'Mail: <b>' + esc(r.email) + '</b><br>' : '');
-      $('deshacer').hidden = !r.deshacer;
+      var quien = (r.ig ? 'Instagram: <b>' + esc(r.ig) + '</b><br>' : '') + (r.email ? 'Mail: <b>' + esc(r.email) + '</b>' : '');
       if (r.estado === 'valido') {
-        pintar('valido', r.deshecho ? 'Canje deshecho' : 'Válido', codigo, (r.deshecho ? 'El cupón volvió a quedar <b>sin usar</b>.<br>' : '') +
-          quien + 'Vence el <b>' + esc(r.vence) + '</b>');
-        $('canjear').hidden = false;
+        pintar('valido', ICONOS.ok, 'Cupón válido', codigo,
+          '<b>10% de descuento</b>, solo consumo en el local.<br>' + quien + '<br>Vence el <b>' + esc(r.vence) + '</b>',
+          '<button class="marcar" id="marcar" type="button">Marcar como usado</button>');
+        $('marcar').addEventListener('click', function(){ $('velo').hidden = false; });
       } else if (r.estado === 'canjeado') {
-        pintar('canjeado', '✓ Canjeado', codigo, quien + 'Aplicá el <b>10% de descuento</b>.<br>Solo consumo en el local, no delivery. No acumulable con otros descuentos del local.<br>Quedó marcado como usado el ' + esc(r.usado) + '.');
+        pintar('usado', ICONOS.no, 'Cupón usado', codigo,
+          'Recién marcado: aplicá el <b>10%</b>.<br>Ya no sirve para otra compra.<br>' + quien);
       } else if (r.estado === 'usado') {
-        pintar('usado', 'Ya usado', codigo, quien + 'Se canjeó el <b>' + esc(r.usado || 'antes') + '</b>.<br>No aplicar el descuento.' +
-          (r.deshacer ? '<br>Si lo marcaron por error recién, podés deshacerlo abajo.' : ''));
+        pintar('usado', ICONOS.no, 'Cupón usado', codigo,
+          'Se usó el <b>' + esc(r.usado || 'antes') + '</b>.<br><b>No aplicar el descuento.</b><br>' + quien);
       } else if (r.estado === 'vencido') {
-        pintar('vencido', 'Vencido', codigo, quien + 'Venció el <b>' + esc(r.vence) + '</b>.');
+        pintar('vencido', ICONOS.reloj, 'Cupón vencido', codigo, 'Venció el <b>' + esc(r.vence) + '</b>.<br><b>No aplicar el descuento.</b>');
       } else {
-        pintar('noexiste', 'No existe', codigo, 'Ese código no es un cupón de Vice. Revisá que esté bien escrito.');
+        pintar('noexiste', ICONOS.no, 'No existe', codigo, 'Ese código no es un cupón de Vice.<br><b>No aplicar el descuento.</b>');
       }
-    }).catch(function(){ pintar('vencido', 'Sin conexión', codigo, 'No se pudo consultar. Revisá internet y probá de nuevo.'); });
+    }).catch(function(){ pintar('vencido', ICONOS.reloj, 'Sin conexión', codigo, 'Revisá internet y probá de nuevo.'); });
   }
 
-  function pintar(tipo, titulo, cod, det){
-    $('estado').className = 'estado e-' + tipo;
-    $('estado').innerHTML = '<div class="grande">' + esc(titulo) + '</div>' +
-      (cod ? '<div class="cod">' + esc(cod) + '</div>' : '') + '<div class="det">' + det + '</div>';
+  function pintar(tipo, icono, titulo, cod, det, extra){
+    document.body.className = 'e-' + tipo;
+    $('vEstado').innerHTML = '<div class="icono">' + icono + '</div>' +
+      '<div class="grande">' + esc(titulo) + '</div>' +
+      (cod ? '<div class="cod">' + esc(cod) + '</div>' : '') +
+      '<div class="det">' + det + '</div>' + (extra || '');
   }
-  function mostrarErr(t){ $('errClave').textContent = t; $('errClave').hidden = false; }
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 
-  $('fClave').addEventListener('submit', function(e){
-    e.preventDefault();
-    clave = $('clave').value.trim(); guardarClave(clave); $('clave').value = ''; $('errClave').hidden = true;
-    arrancar();
-  });
+  $('confirmar').addEventListener('click', function(){ $('velo').hidden = true; consultar('canjear'); });
+  $('cancelar').addEventListener('click', function(){ $('velo').hidden = true; });
   $('fCodigo').addEventListener('submit', function(e){
     e.preventDefault();
     codigo = $('codigo').value.trim().toUpperCase(); $('codigo').value = '';
     history.replaceState(null, '', '?c=' + encodeURIComponent(codigo));
     consultar('consultar');
   });
-  $('canjear').addEventListener('click', function(){
-    $('canjear').disabled = true;
-    $('canjear').innerHTML = '<span class="spin"></span>Canjeando';
-    consultar('canjear');
-    setTimeout(function(){ $('canjear').disabled = false; $('canjear').textContent = 'Canjear 10%'; }, 500);
-  });
-  $('deshacer').addEventListener('click', function(){
-    if (!confirm('¿Deshacer el canje de ' + codigo + '? El cupón vuelve a quedar sin usar.')) return;
-    consultar('deshacer');
-  });
   $('otroCodigo').addEventListener('click', function(){
-    codigo = ''; history.replaceState(null, '', location.pathname); ver('vCodigo'); $('codigo').focus();
+    codigo = ''; history.replaceState(null, '', location.pathname); arrancar(); $('codigo').focus();
   });
-  $('salir').addEventListener('click', function(){ clave = ''; guardarClave(''); ver('vClave'); });
 
   arrancar();
 })();
