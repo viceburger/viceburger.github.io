@@ -147,7 +147,7 @@
           quien + 'Vence el <b>' + esc(r.vence) + '</b>');
         $('canjear').hidden = false;
       } else if (r.estado === 'canjeado') {
-        pintar('canjeado', '✓ Canjeado', codigo, quien + 'Aplicá el <b>10% de descuento</b>.<br>No acumulable con otros descuentos del local.<br>Quedó marcado como usado el ' + esc(r.usado) + '.');
+        pintar('canjeado', '✓ Canjeado', codigo, quien + 'Aplicá el <b>10% de descuento</b>.<br>Solo consumo en el local, no delivery. No acumulable con otros descuentos del local.<br>Quedó marcado como usado el ' + esc(r.usado) + '.');
       } else if (r.estado === 'usado') {
         pintar('usado', 'Ya usado', codigo, quien + 'Se canjeó el <b>' + esc(r.usado || 'antes') + '</b>.<br>No aplicar el descuento.' +
           (r.deshacer ? '<br>Si lo marcaron por error recién, podés deshacerlo abajo.' : ''));

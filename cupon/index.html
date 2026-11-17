@@ -139,19 +139,21 @@
     <div class="intro">
       <div class="off">10%<small>OFF</small></div>
       <h1>en tu próxima visita</h1>
-      <p>Sumate al canal de Vice en Instagram y te mandamos un cupón a tu mail.</p>
+      <p id="introTxt">Gracias por estar en el canal de Vice. Dejanos tus datos y te mandamos el cupón a tu mail.</p>
     </div>
 
-    <section class="paso" id="p1">
-      <div class="paso-t"><span class="num">1</span>Sumate al canal</div>
+    <!-- Sin la clave del link del canal: no hay cupón, solo la invitación a entrar. -->
+    <section class="paso" id="p1" hidden>
+      <div class="paso-t"><span class="num">!</span>Exclusivo del canal</div>
+      <p class="nota" style="text-align:left;margin:0 0 14px;font-size:14px;color:var(--soft)">Este cupón es solo para quienes están en el canal de Vice en Instagram. Entrá al canal y abrí el link que publicamos ahí.</p>
       <a class="btn" id="irCanal" href="#" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
         Entrar al canal
       </a>
     </section>
 
-    <section class="paso bloq" id="p2">
-      <div class="paso-t"><span class="num">2</span>Recibí tu cupón</div>
+    <section class="paso" id="p2">
+      <div class="paso-t"><span class="num">✓</span>Recibí tu cupón</div>
       <label class="ig" for="ig">Tu usuario de Instagram
         <span class="arroba"><b>@</b><input id="ig" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="tuusuario" disabled></span>
       </label>
@@ -170,7 +172,7 @@
       <div class="msg" id="msg" role="status" hidden></div>
     </section>
 
-    <p class="legal">Un cupón por persona. Válido hasta el <span id="vence">domingo 29/11</span> en el local, mostrando el QR del mail al pagar. Se usa una sola vez. No acumulable con otros descuentos del local. <a href="privacidad.html" style="color:inherit">Privacidad</a></p>
+    <p class="legal">Un cupón por persona. Válido hasta el <span id="vence">domingo 29/11</span> solo para consumir en el local (no válido para delivery), mostrando el QR del mail al pagar. Se usa una sola vez. No acumulable con otros descuentos del local. <a href="privacidad.html" style="color:inherit">Privacidad</a></p>
   </div></div>
 </main>
 
@@ -189,22 +191,21 @@
   if (CFG.vence) $('vence').textContent = CFG.vence;
   var ig = $('ig');
 
-  function habilitar(){
-    p1.classList.add('hecho');
-    p2.classList.remove('bloq');
-    ig.disabled = false; email.disabled = false; enviar.disabled = false;
+  // La clave viene en el link que se publica en el canal (?k=...). La valida el servidor.
+  var estado = leer();
+  var k = (new URLSearchParams(location.search).get('k') || estado.k || '').trim().toLowerCase();
+  if (k) { estado.k = k; guardar(estado); }
+
+  function soloCanal(){
+    p1.hidden = false; p2.hidden = true;
+    $('introTxt').textContent = 'Un regalo para quienes están en el canal de Vice en Instagram.';
+    var s = leer(); delete s.k; guardar(s); k = '';
   }
 
-  var estado = leer();
-  if (estado.canal) habilitar();
+  if (!k && !demo) soloCanal();
+  else { ig.disabled = false; email.disabled = false; enviar.disabled = false; }
   if (estado.ig) ig.value = estado.ig;
   if (estado.enviado) mostrar('ok', 'Ya te mandamos el cupón a <b>' + esc(estado.enviado) + '</b>. Si no lo ves, fijate en Promociones o Spam.');
-
-  $('irCanal').addEventListener('click', function(){
-    var s = leer(); s.canal = Date.now(); guardar(s);
-    // Se habilita al volver a esta pestaña, así primero entran al canal.
-    setTimeout(habilitar, 1500);
-  });
 
   // Usuario de Instagram: letras, números, punto y guion bajo, hasta 30.
   function usuarioIg(){
@@ -292,6 +293,7 @@
     var usuario = usuarioIg();
     if (!usuario) return faltaIg();
     datos.ig = usuario;
+    datos.k = k;
     var s0 = leer(); s0.ig = usuario; guardar(s0);
     cargando(true);
     pedir(datos)
@@ -307,6 +309,8 @@
           mostrar('aviso', 'Este mail ya recibió su cupón. Es uno por persona.');
         } else if (r.motivo === 'ya-ig') {
           mostrar('aviso', 'Ese usuario de Instagram ya pidió su cupón. Es uno por persona.');
+        } else if (r.motivo === 'canal') {
+          msg.hidden = true; soloCanal();
         } else if (r.motivo === 'ig') {
           faltaIg();
         } else if (r.motivo === 'vencido') {
