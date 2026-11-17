@@ -18,6 +18,7 @@
     servidor: 'https://script.google.com/macros/s/AKfycby7teQg4MR0Lwze4CrICpsh6sWb2b6Hky9Z5K-FqVvsVLNtiBulX4IV2b3tTcq9AxHn/exec',  // Apps Script "Cupones Vice"
     canal: 'https://www.instagram.com/channel/pbnRoaCN9yJhL6An/',  // canal de Instagram de Vice (Viciosos)
     vence: 'domingo 22/11',  // tiene que coincidir con VENCE en Code.gs
+    resena: 'https://g.page/r/CZmkphLY3fsdEAI/review',  // reseña de Google de Vice: paso 1 obligatorio (tocar el botón habilita el cupón)
     googleClientId: '538996190430-j9mcpj6k7jp26391nkhojkmc9ksm4g66.apps.googleusercontent.com'  // ID de cliente OAuth (Google Cloud, cuenta de Vice). Vacío = solo mail escrito.
   };
 </script>
@@ -139,7 +140,7 @@
     <div class="intro">
       <div class="off">20%<small>OFF</small></div>
       <h1>en tu próxima visita</h1>
-      <p id="introTxt">Gracias por estar en el canal de Vice. Dejanos tus datos y te mandamos el cupón a tu mail.</p>
+      <p id="introTxt">Gracias por estar en el canal de Vice. Dejanos tu reseña en Google y te mandamos el cupón a tu mail.</p>
     </div>
 
     <!-- Sin la clave del link del canal: no hay cupón, solo la invitación a entrar. -->
@@ -152,8 +153,18 @@
       </a>
     </section>
 
-    <section class="paso" id="p2">
-      <div class="paso-t"><span class="num">✓</span>Recibí tu cupón</div>
+    <!-- Paso 1 obligatorio: tocar "Dejar mi reseña" habilita el paso 2. -->
+    <section class="paso" id="p3" hidden>
+      <div class="paso-t"><span class="num">1</span>Dejá tu reseña</div>
+      <p class="nota" style="text-align:left;margin:0 0 14px;font-size:14px;color:var(--soft)">Contanos en Google qué te pareció Vice. Cuando vuelvas a esta página, se habilita tu cupón.</p>
+      <a class="btn" id="irResena" href="#" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>
+        Dejar mi reseña
+      </a>
+    </section>
+
+    <section class="paso bloq" id="p2">
+      <div class="paso-t"><span class="num">2</span>Recibí tu cupón</div>
       <label class="ig" for="ig">Tu usuario de Instagram
         <span class="arroba"><b>@</b><input id="ig" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="tuusuario" disabled></span>
       </label>
@@ -197,13 +208,25 @@
   if (k) { estado.k = k; guardar(estado); }
 
   function soloCanal(){
-    p1.hidden = false; p2.hidden = true;
+    p1.hidden = false; p2.hidden = true; $('p3').hidden = true;
     $('introTxt').textContent = 'Un regalo para quienes están en el canal de Vice en Instagram.';
     var s = leer(); delete s.k; guardar(s); k = '';
   }
 
+  // Paso 2 (cupón) se habilita después de tocar "Dejar mi reseña".
+  function habilitar(){
+    $('p3').classList.add('hecho');
+    p2.classList.remove('bloq');
+    ig.disabled = false; email.disabled = false; enviar.disabled = false;
+  }
+  $('irResena').href = CFG.resena || 'https://www.google.com/maps/search/Vice+Burgers+%26+Fries';
+  $('irResena').addEventListener('click', function(){
+    var s = leer(); s.resena = Date.now(); guardar(s);
+    setTimeout(habilitar, 1500);
+  });
+
   if (!k && !demo) soloCanal();
-  else { ig.disabled = false; email.disabled = false; enviar.disabled = false; }
+  else { $('p3').hidden = false; if (estado.resena) habilitar(); }
   if (estado.ig) ig.value = estado.ig;
   if (estado.enviado) mostrar('ok', 'Ya te mandamos el cupón a <b>' + esc(estado.enviado) + '</b>. Si no lo ves, fijate en Promociones o Spam.');
 
