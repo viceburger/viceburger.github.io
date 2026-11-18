@@ -171,15 +171,14 @@
       </label>
       <p class="nota" style="margin:6px 0 14px">Con este usuario chequeamos que estés en el canal.</p>
       <form id="form" novalidate>
-        <label class="campo-mail" for="email">Tu mail: acá te va a llegar el cupón
+        <label class="campo-mail" for="email">Tu mail: ahí también te mandamos el cupón
           <input type="email" id="email" name="email" placeholder="tu@mail.com" autocomplete="email" inputmode="email" required disabled>
         </label>
         <button class="sugerido" id="sugerido" type="button" hidden></button>
         <button class="btn cyan" id="enviar" type="submit" disabled>Mandame el cupón</button>
-        <p class="nota">El cupón llega solo a ese mail y no se muestra acá. Revisá que esté bien escrito.</p>
       </form>
       <div class="msg" id="msg" role="status" hidden></div>
-      <!-- Hotmail y Outlook suelen filtrar el mail: a esas cuentas se les muestra el cupón acá. -->
+      <!-- El cupón se muestra acá además de ir por mail, porque algunos correos lo filtran. -->
       <div class="cupon" id="cupon" hidden>
         <div class="cupon-t">Tu cupón 20% OFF</div>
         <div class="cupon-qr"><img id="cuponQr" alt="QR del cupón" width="200" height="200"></div>
@@ -188,7 +187,7 @@
       </div>
     </section>
 
-    <p class="legal">Un cupón por persona. Válido hasta el <span id="vence">domingo 22/11</span> solo para consumir en el local (no válido para delivery), mostrando el QR del mail al pagar. Se usa una sola vez. No acumulable con otros descuentos del local. <a href="privacidad.html" style="color:inherit">Privacidad</a></p>
+    <p class="legal">Un cupón por persona. Válido hasta el <span id="vence">domingo 22/11</span> solo para consumir en el local (no válido para delivery), mostrando el QR del cupón al pagar. Se usa una sola vez. No acumulable con otros descuentos del local. <a href="privacidad.html" style="color:inherit">Privacidad</a></p>
   </div></div>
 </main>
 
@@ -241,7 +240,6 @@
     $('cuponCod').textContent = codigo;
     $('cuponVence').textContent = CFG.vence || '';
     $('cupon').hidden = false;
-    document.querySelector('#form .nota').hidden = true;
     var s = leer(); s.cupon = codigo; guardar(s);
   }
 
@@ -311,7 +309,7 @@
         if (r.ok) {
           var s = leer(); s.enviado = valor; guardar(s);
           if (r.codigo) {
-            mostrar('ok', '¡Listo! Tu cupón está acá abajo. También te lo mandamos a <b>' + esc(valor) + '</b>, pero a veces ese correo lo demora.');
+            mostrar('ok', '¡Listo! Tu cupón está acá abajo. También te lo mandamos a <b>' + esc(valor) + '</b>.');
             mostrarCupon(r.codigo);
             $('cupon').scrollIntoView({ behavior: 'smooth', block: 'center' });
           } else {
