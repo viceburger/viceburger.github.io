@@ -9,11 +9,22 @@
 <link rel="icon" type="image/png" href="../avatar.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Boldonse&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Boldonse&family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <script>
   window.CANJE_CFG = {
     servidor: 'https://script.google.com/macros/s/AKfycby7teQg4MR0Lwze4CrICpsh6sWb2b6Hky9Z5K-FqVvsVLNtiBulX4IV2b3tTcq9AxHn/exec'
   };
+  // La consulta del QR arranca apenas abre la página, sin esperar al resto.
+  (function(){
+    var c = (new URLSearchParams(location.search).get('c') || '').trim().toUpperCase();
+    if (!c) return;
+    window.CANJE_PRIMERA = { codigo: c, respuesta: fetch(window.CANJE_CFG.servidor, {
+      method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({ accion: 'consultar', codigo: c })
+    }).then(function(r){ return r.json(); }) };
+  })();
 </script>
 <style>
   /* Pantalla de caja: el color de fondo entero dice el estado (verde válido, rojo usado). */
@@ -61,7 +72,9 @@
     font-family:Boldonse, Impact, sans-serif; font-size:19px; line-height:1.45; box-shadow:0 8px 0 rgba(0,0,0,.18)}
   .marcar:active{transform:translateY(3px); box-shadow:0 5px 0 rgba(0,0,0,.18)}
   .otro{background:none; border:0; color:#fff; opacity:.9; font:600 15px Inter, sans-serif; text-decoration:underline; cursor:pointer; padding:10px}
-  .cargando{color:var(--soft); font-size:16px}
+  .cargando{display:flex; flex-direction:column; align-items:center; gap:18px; color:var(--ink); font-size:18px; font-weight:600}
+  .cargando .cod{background:rgba(255,255,255,.08)}
+  .aro{width:64px; height:64px; border-radius:50%; border:6px solid rgba(255,255,255,.16); border-top-color:var(--cyan-hi); animation:g .75s linear infinite}
   .spin{width:20px; height:20px; border-radius:50%; border:3px solid rgba(29,29,26,.25); border-top-color:var(--verde); animation:g .7s linear infinite}
   @keyframes g{to{transform:rotate(360deg)}}
 
@@ -135,8 +148,14 @@
   function consultar(accion){
     ver('vEstado');
     document.body.className = '';
-    $('vEstado').innerHTML = '<p class="cargando">' + (accion === 'canjear' ? 'Marcando como usado…' : 'Buscando ' + esc(codigo) + '…') + '</p>';
-    pedir({ accion: accion, codigo: codigo }).then(function(r){
+    $('vEstado').innerHTML = '<div class="cargando"><div class="aro"></div>' +
+      (accion === 'canjear' ? 'Marcando como usado…' : 'Verificando cupón…') +
+      '<div class="cod">' + esc(codigo) + '</div></div>';
+    // La primera consulta ya salió desde el encabezado: se aprovecha esa respuesta.
+    var primera = window.CANJE_PRIMERA;
+    window.CANJE_PRIMERA = null;
+    var respuesta = (primera && accion === 'consultar' && primera.codigo === codigo) ? primera.respuesta : pedir({ accion: accion, codigo: codigo });
+    respuesta.then(function(r){
       if (!r.ok && r.motivo === 'bloqueado') return pintar('usado', ICONOS.no, 'Bloqueado', '', 'Se probaron demasiados códigos que no existen. Esperá una hora.');
       if (!r.ok) return pintar('vencido', ICONOS.reloj, 'Error', codigo, 'No se pudo consultar. Probá de nuevo.');
       codigo = r.codigo || codigo;
