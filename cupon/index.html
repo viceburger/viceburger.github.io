@@ -113,6 +113,13 @@
   .msg.ok{background:rgba(43,184,209,.12); border:1px solid rgba(43,184,209,.5); color:var(--cyan-hi)}
   .msg.aviso{background:rgba(255,210,138,.1); border:1px solid rgba(255,210,138,.45); color:#ffd28a}
   .msg.error{background:rgba(255,138,138,.1); border:1px solid rgba(255,138,138,.45); color:#ff8a8a}
+  .cupon{margin-top:14px; padding:18px 14px; border-radius:16px; text-align:center; background:#0b0b0a; border:2px dashed var(--cyan)}
+  .cupon-t{font-size:12px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--cyan-hi)}
+  .cupon-qr{display:inline-block; margin-top:12px; padding:10px; border-radius:14px; background:#fff; line-height:0}
+  .cupon-qr img{display:block; width:200px; max-width:100%; height:auto}
+  .cupon-cod{margin-top:12px; font:700 26px "Courier New", monospace; letter-spacing:.1em; color:#fff}
+  .cupon p{margin-top:10px; font-size:13px; line-height:1.5; color:var(--soft)}
+  .cupon p b{color:var(--ink)}
 
   .legal{margin-top:auto; padding-top:16px; text-align:center; font-size:12px; line-height:1.55; color:var(--muted)}
 
@@ -172,6 +179,13 @@
         <p class="nota">El cupón llega solo a ese mail y no se muestra acá. Revisá que esté bien escrito.</p>
       </form>
       <div class="msg" id="msg" role="status" hidden></div>
+      <!-- Hotmail y Outlook suelen filtrar el mail: a esas cuentas se les muestra el cupón acá. -->
+      <div class="cupon" id="cupon" hidden>
+        <div class="cupon-t">Tu cupón 20% OFF</div>
+        <div class="cupon-qr"><img id="cuponQr" alt="QR del cupón" width="200" height="200"></div>
+        <div class="cupon-cod" id="cuponCod"></div>
+        <p>Sacale una captura y mostrala al pagar en el local.<br>Válido hasta el <b id="cuponVence"></b>. Solo para consumir en el local.</p>
+      </div>
     </section>
 
     <p class="legal">Un cupón por persona. Válido hasta el <span id="vence">domingo 22/11</span> solo para consumir en el local (no válido para delivery), mostrando el QR del mail al pagar. Se usa una sola vez. No acumulable con otros descuentos del local. <a href="privacidad.html" style="color:inherit">Privacidad</a></p>
@@ -219,6 +233,17 @@
   if (!k && !demo) soloCanal();
   else { $('p3').hidden = false; if (estado.resena) habilitar(); }
   if (estado.ig) ig.value = estado.ig;
+  if (estado.cupon) mostrarCupon(estado.cupon);
+
+  function mostrarCupon(codigo){
+    var canje = 'https://viceburger.github.io/cupon/canje.html?c=' + encodeURIComponent(codigo);
+    $('cuponQr').src = 'https://quickchart.io/qr?size=400&margin=1&text=' + encodeURIComponent(canje);
+    $('cuponCod').textContent = codigo;
+    $('cuponVence').textContent = CFG.vence || '';
+    $('cupon').hidden = false;
+    document.querySelector('#form .nota').hidden = true;
+    var s = leer(); s.cupon = codigo; guardar(s);
+  }
 
   // Usuario de Instagram: letras, números, punto y guion bajo, hasta 30.
   function usuarioIg(){
@@ -285,10 +310,22 @@
         if (r.email) valor = r.email;
         if (r.ok) {
           var s = leer(); s.enviado = valor; guardar(s);
-          mostrar('ok', '¡Listo! Te mandamos el cupón a <b>' + esc(valor) + '</b>. Si no lo ves en unos minutos, fijate en Promociones o Spam.');
+          if (r.codigo) {
+            mostrar('ok', '¡Listo! Tu cupón está acá abajo. También te lo mandamos a <b>' + esc(valor) + '</b>, pero a veces ese correo lo demora.');
+            mostrarCupon(r.codigo);
+            $('cupon').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            mostrar('ok', '¡Listo! Te mandamos el cupón a <b>' + esc(valor) + '</b>. Si no lo ves en unos minutos, fijate en Promociones o Spam.');
+          }
           email.value = '';
         } else if (r.motivo === 'ya') {
-          mostrar('aviso', 'Este mail ya recibió su cupón. Es uno por persona.');
+          if (r.codigo) {
+            mostrar('aviso', 'Ya habías pedido tu cupón. Acá lo tenés de nuevo.');
+            mostrarCupon(r.codigo);
+            $('cupon').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            mostrar('aviso', 'Este mail ya recibió su cupón. Es uno por persona.');
+          }
         } else if (r.motivo === 'ya-ig') {
           mostrar('aviso', 'Ese usuario de Instagram ya pidió su cupón. Es uno por persona.');
         } else if (r.motivo === 'canal') {
