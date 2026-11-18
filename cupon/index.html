@@ -107,7 +107,6 @@
     border:1.5px solid rgba(255,255,255,.18); outline:none; transition:border-color .2s, box-shadow .2s}
   input[type=email]:focus{border-color:var(--cyan); box-shadow:0 0 12px rgba(43,184,209,.45)}
   input[type=email]::placeholder{color:var(--muted)}
-  .trampa{position:absolute; left:-9999px; width:1px; height:1px; opacity:0}
 
   .msg{margin-top:12px; padding:12px 14px; border-radius:12px; font-size:14px; line-height:1.5}
   .msg b{color:var(--ink)}
@@ -168,7 +167,6 @@
         <label class="campo-mail" for="email">Tu mail: acá te va a llegar el cupón
           <input type="email" id="email" name="email" placeholder="tu@mail.com" autocomplete="email" inputmode="email" required disabled>
         </label>
-        <input class="trampa" type="text" id="web" name="web" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button class="sugerido" id="sugerido" type="button" hidden></button>
         <button class="btn cyan" id="enviar" type="submit" disabled>Mandame el cupón</button>
         <p class="nota">El cupón llega solo a ese mail y no se muestra acá. Revisá que esté bien escrito.</p>
@@ -221,7 +219,6 @@
   if (!k && !demo) soloCanal();
   else { $('p3').hidden = false; if (estado.resena) habilitar(); }
   if (estado.ig) ig.value = estado.ig;
-  if (estado.enviado) mostrar('ok', 'Ya te mandamos el cupón a <b>' + esc(estado.enviado) + '</b>. Si no lo ves, fijate en Promociones o Spam.');
 
   // Usuario de Instagram: letras, números, punto y guion bajo, hasta 30.
   function usuarioIg(){
@@ -273,7 +270,7 @@
       mostrar('aviso', 'Revisá el mail antes de mandarlo: tocá la sugerencia de arriba para corregirlo.');
       return;
     }
-    pedirCupon({ email: valor, web: $('web').value }, valor);
+    pedirCupon({ email: valor }, valor);
   });
 
   function pedirCupon(datos, valor){
