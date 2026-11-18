@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vice Burgers &amp; Fries · Tu cupón</title>
+<meta name="theme-color" content="#121210">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="../avatar.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Boldonse&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  /* Vista del cupón para el cliente: solo muestra QR y código. Marcarlo usado se hace en canje.html. */
+  :root{ --bg:#121210; --ink:#f3eee6; --soft:#bdb7ac; --pink:#e94780; --pink-hi:#ff6fa3; --cyan:#2bb8d1; --cyan-hi:#6fe3f5; }
+  *{box-sizing:border-box; margin:0; padding:0}
+  [hidden]{display:none!important}
+  body{background:var(--bg); color:var(--ink); min-height:100svh; font-family:Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    -webkit-font-smoothing:antialiased; padding:max(22px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    display:flex; justify-content:center; align-items:center}
+  main{width:100%; max-width:400px; text-align:center}
+  .logo{width:150px; height:auto; filter:drop-shadow(0 0 8px rgba(233,71,128,.7))}
+  .off{margin-top:10px; font-family:Boldonse, Impact, sans-serif; font-size:40px; line-height:1.45; color:var(--pink-hi)}
+  .cupon{margin-top:12px; padding:18px 14px; border-radius:18px; background:#0b0b0a; border:2px dashed var(--cyan)}
+  .qr{display:inline-block; padding:10px; border-radius:14px; background:#fff; line-height:0}
+  .qr img{display:block; width:220px; max-width:100%; height:auto}
+  .cod{margin-top:12px; font:700 28px "Courier New", monospace; letter-spacing:.1em; color:#fff}
+  .aviso{margin-top:14px; padding:12px; border-radius:12px; background:var(--pink-hi); color:#121210; font-size:14px; font-weight:700; line-height:1.4}
+  .legal{margin-top:14px; font-size:13px; line-height:1.55; color:var(--soft)}
+  .legal b{color:var(--ink)}
+  .error{margin-top:18px; font-size:16px; line-height:1.5; color:var(--soft)}
+</style>
+</head>
+<body>
+<main>
+  <img class="logo" src="../logo.png" alt="Vice">
+  <section id="vCupon" hidden>
+    <div class="off">20% OFF</div>
+    <div class="cupon">
+      <div class="qr"><img id="qr" alt="QR del cupón" width="220" height="220"></div>
+      <div class="cod" id="cod"></div>
+      <div class="aviso">Sacale captura y mostrala al pagar en el local.</div>
+      <p class="legal">Válido hasta el <b>domingo 22/11</b>. Solo para consumir en el local, no válido para delivery. Se usa una sola vez. No acumulable con otros descuentos del local.</p>
+    </div>
+  </section>
+  <p class="error" id="vError" hidden>Este enlace no tiene un cupón válido. Escribinos por privado a nuestro Instagram y te ayudamos.</p>
+</main>
+<script>
+(function(){
+  var codigo = (new URLSearchParams(location.search).get('c') || '').trim().toUpperCase();
+  if (!/^VICE-[A-Z0-9]{5}$/.test(codigo)) { document.getElementById('vError').hidden = false; return; }
+  var canje = 'https://viceburger.github.io/cupon/canje.html?c=' + encodeURIComponent(codigo);
+  document.getElementById('qr').src = 'https://quickchart.io/qr?size=440&margin=1&text=' + encodeURIComponent(canje);
+  document.getElementById('cod').textContent = codigo;
+  document.getElementById('vCupon').hidden = false;
+})();
+</script>
+</body>
+</html>
