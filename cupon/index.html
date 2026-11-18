@@ -114,6 +114,11 @@
   .msg.aviso{background:rgba(255,210,138,.1); border:1px solid rgba(255,210,138,.45); color:#ffd28a}
   .msg.error{background:rgba(255,138,138,.1); border:1px solid rgba(255,138,138,.45); color:#ff8a8a}
   .cupon{margin-top:14px; padding:18px 14px; border-radius:16px; text-align:center; background:#0b0b0a; border:2px dashed var(--cyan)}
+  .captura{display:flex; align-items:center; gap:12px; margin-top:12px; padding:12px; border-radius:12px; text-align:left;
+    background:var(--pink-hi); color:#121210}
+  .captura svg{width:32px; height:32px; flex:none}
+  .captura b{display:block; font-family:Boldonse, Impact, sans-serif; font-weight:400; font-size:14px; line-height:1.45; text-transform:uppercase}
+  .captura span{display:block; margin-top:2px; font-size:13.5px; font-weight:600; line-height:1.35}
   .cupon-t{font-size:12px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--cyan-hi)}
   .cupon-qr{display:inline-block; margin-top:12px; padding:10px; border-radius:14px; background:#fff; line-height:0}
   .cupon-qr img{display:block; width:200px; max-width:100%; height:auto}
@@ -181,9 +186,13 @@
       <!-- El cupón se muestra acá además de ir por mail, porque algunos correos lo filtran. -->
       <div class="cupon" id="cupon" hidden>
         <div class="cupon-t">Tu cupón 20% OFF</div>
+        <div class="captura">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>
+          <div><b>Sacale captura</b><span>Si se te cierra, volvé a entrar al enlace y poné el mismo mail y usuario: te aparece de nuevo.</span></div>
+        </div>
         <div class="cupon-qr"><img id="cuponQr" alt="QR del cupón" width="200" height="200"></div>
         <div class="cupon-cod" id="cuponCod"></div>
-        <p>Sacale una captura y mostrala al pagar en el local.<br>Válido hasta el <b id="cuponVence"></b>. Solo para consumir en el local.</p>
+        <p>Mostralo al pagar en el local.<br>Válido hasta el <b id="cuponVence"></b>. Solo para consumir en el local.</p>
       </div>
     </section>
 
