@@ -18,8 +18,10 @@
     servidor: 'https://script.google.com/macros/s/AKfycby7teQg4MR0Lwze4CrICpsh6sWb2b6Hky9Z5K-FqVvsVLNtiBulX4IV2b3tTcq9AxHn/exec',  // Apps Script "Cupones Vice"
     canal: 'https://www.instagram.com/channel/pbnRoaCN9yJhL6An/',  // canal de Instagram de Vice (Viciosos)
     vence: 'domingo 22/11',  // tiene que coincidir con VENCE en Code.gs
-    resena: 'https://g.page/r/CZmkphLY3fsdEAI/review'  // reseña de Google de Vice: paso 1 obligatorio (tocar el botón habilita el cupón)
+    resena: 'https://g.page/r/CZmkphLY3fsdEAI/review',  // reseña de Google de Vice: paso 1 obligatorio (tocar el botón habilita el cupón)
+    activa: false  // false = promo en pausa: el enlace y el QR llevan directo a la reseña. Para reactivar: true (y nueva fecha en vence y en VENCE de Code.gs)
   };
+  if (!window.CUPON_CFG.activa) location.replace(window.CUPON_CFG.resena);
 </script>
 <style>
   :root{
